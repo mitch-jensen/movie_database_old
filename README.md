@@ -1,0 +1,1 @@
+> This project was created using [DjangoX](https://github.com/wsvincent/djangox).

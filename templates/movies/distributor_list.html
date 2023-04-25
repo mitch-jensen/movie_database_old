@@ -1,0 +1,11 @@
+{% extends '_base.html' %}
+
+{% block content %}
+{% for distributor in distributor_list %}
+    {% for colname in distributor.column_set.all  %}
+        <p>{{colname}}</p>
+    {% endfor %}
+{% endfor %}
+
+<h1>About page</h1>
+{% endblock content %}

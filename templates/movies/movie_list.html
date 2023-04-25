@@ -1,0 +1,11 @@
+{% extends '_base.html' %}
+
+{% block content %}
+{% for movie in movie_list %}
+    {% for colname in movie.column_set.all  %}
+        <p>{{colname}}</p>
+    {% endfor %}
+{% endfor %}
+
+<h1>About page</h1>
+{% endblock content %}

@@ -113,10 +113,13 @@ class Distributor(models.Model):
         WARNER_BROS = "War", _("Warner Bros.")
         WICKED_VISION_MEDIA = "Wic", _("Wicked-Vision Media")
 
-    name = models.CharField(max_length=3, choices=Studio.choices)
+    name = models.CharField(max_length=3, choices=Studio.choices, unique=True)
 
     def __str__(self):
-        return self.name.label
+        return self.get_name_display()
+    
+    class Meta:
+        db_table = 'distributor'
 
 
 class Collection(models.Model):
@@ -125,6 +128,11 @@ class Collection(models.Model):
 
     def __str__(self):
         return self.title
+    
+    class Meta:
+        db_table = 'collection'
+        ordering = ['distributor', 'title']
+        unique_together = ['title', 'distributor']
 
 
 class Movie(models.Model):
@@ -135,6 +143,10 @@ class Movie(models.Model):
 
     def __str__(self):
         return f'{self.title} ({self.release_date.year})'
+    
+    class Meta:
+        db_table = 'movie'
+        ordering = ['title']
 
 
 class Director(models.Model):
@@ -144,3 +156,6 @@ class Director(models.Model):
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
+    class Meta:
+        db_table = 'director'
+        ordering = ['last_name']

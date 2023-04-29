@@ -1,4 +1,4 @@
-# from movies.models import PhysicalMedia, Distributor, Collection, Movie, Director
+from movies.models import PhysicalMedia, Distributor, Collection, Movie, Director
 
 class TestPhysicalMedia:
     def test_medium(self):

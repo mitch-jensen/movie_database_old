@@ -1,5 +1,5 @@
 import pytest
-from movies.factories import DirectorFactory
+from .factories import DirectorFactory
 
 class TestPhysicalMedia:
     def test_medium(self):

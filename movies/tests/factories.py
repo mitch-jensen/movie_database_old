@@ -2,8 +2,15 @@ import factory
 import random
 from datetime import date
 
-from movies.models import Director, Movie
+from movies.models import Director, Movie, Distributor
 
+
+class DistributorFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Distributor
+
+    name = random.choice(Distributor.Studio.choices)[0]
+    
 
 class DirectorFactory(factory.django.DjangoModelFactory):
     class Meta:

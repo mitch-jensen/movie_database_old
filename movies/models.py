@@ -2,6 +2,7 @@ from typing import List, Self
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+
 class PhysicalMedia(models.Model):
     class Medium(models.TextChoices):
         DVD = 'D', _('DVD')
@@ -9,10 +10,14 @@ class PhysicalMedia(models.Model):
         BLURAY4K = '4', _('4K Blu-ray')
 
     title = models.TextField()
-    medium = models.CharField(max_length=1, choices=Medium.choices, default=Medium.BLURAY)
-    _distributor = models.ForeignKey('Distributor', db_column='distributor', null=True, on_delete=models.CASCADE)
-    collection = models.ForeignKey('Collection', null=True, on_delete=models.CASCADE)
-    standard_size = models.BooleanField(default=True) # Whether the media would fit in a standard bookshelf standing up
+    medium = models.CharField(
+        max_length=1, choices=Medium.choices, default=Medium.BLURAY)
+    _distributor = models.ForeignKey(
+        'Distributor', db_column='distributor', null=True, on_delete=models.CASCADE)
+    collection = models.ForeignKey(
+        'Collection', null=True, on_delete=models.CASCADE)
+    # Whether the media would fit in a standard bookshelf standing up
+    standard_size = models.BooleanField(default=True)
     use_collection_name_as_prefix = models.BooleanField(default=False)
 
     @property
@@ -26,7 +31,7 @@ class PhysicalMedia(models.Model):
             return self.collection.distributor
         else:
             return self.distributor
-    
+
     @distributor.setter
     def distributor(self, value):
         self._distributor = value
@@ -117,7 +122,7 @@ class Distributor(models.Model):
 
     def __str__(self):
         return self.get_name_display()
-    
+
     class Meta:
         db_table = 'distributor'
 
@@ -128,7 +133,7 @@ class Collection(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     class Meta:
         db_table = 'collection'
         ordering = ['distributor', 'title']
@@ -143,7 +148,7 @@ class Movie(models.Model):
 
     def __str__(self):
         return f'{self.title} ({self.release_date.year})'
-    
+
     class Meta:
         db_table = 'movie'
         ordering = ['title']

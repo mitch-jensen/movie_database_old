@@ -10,7 +10,7 @@ class DistributorFactory(factory.django.DjangoModelFactory):
         model = Distributor
 
     name = random.choice(Distributor.Studio.choices)[0]
-    
+
 
 class DirectorFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -37,7 +37,7 @@ class MovieFactory(factory.django.DjangoModelFactory):
         if not create:
             # Do nothing
             return
-        
+
         if extracted:
             # A list of directors were passed in
             for director in extracted:

@@ -1,4 +1,5 @@
-from movies.models import PhysicalMedia, Distributor, Collection, Movie, Director
+import pytest
+from movies.factories import DirectorFactory
 
 class TestPhysicalMedia:
     def test_medium(self):
@@ -17,5 +18,7 @@ class TestMovie:
         assert 1 == 1
 
 class TestDirector:
-    def test_director(self):
-        assert 1 == 1
+    @pytest.mark.django_db
+    def test_str_method(self):
+        director = DirectorFactory()
+        assert str(director) == director.first_name + ' ' + director.last_name

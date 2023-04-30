@@ -1,5 +1,5 @@
 import pytest
-from .factories import DirectorFactory, MovieFactory, DistributorFactory
+from .factories import DirectorFactory, MovieFactory, DistributorFactory, CollectionFactory
 from movies.models import Distributor
 
 
@@ -9,8 +9,10 @@ class TestPhysicalMedia:
 
 
 class TestCollection:
-    def test_collection(self):
-        assert 1 == 1
+    @pytest.mark.django_db
+    def test_str_method(self):
+        collection = CollectionFactory()
+        assert str(collection) == collection.title
 
 
 class TestDistributor:

@@ -2,7 +2,7 @@ import factory
 import random
 from datetime import date
 
-from movies.models import Director, Movie, Distributor
+from movies.models import Director, Movie, Distributor, Collection
 
 
 class DistributorFactory(factory.django.DjangoModelFactory):
@@ -10,6 +10,14 @@ class DistributorFactory(factory.django.DjangoModelFactory):
         model = Distributor
 
     name = random.choice(Distributor.Studio.choices)[0]
+
+
+class CollectionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Collection
+
+    title = factory.Faker('sentence', nb_words=4, variable_nb_words=True)
+    distributor = factory.SubFactory(DistributorFactory)
 
 
 class DirectorFactory(factory.django.DjangoModelFactory):

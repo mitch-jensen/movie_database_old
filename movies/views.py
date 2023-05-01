@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, UpdateView, CreateView, DetailView
 from django.views import View
-from movies.models import Movie, Distributor
+from movies.models import Movie
 
 
 class HomePageView(TemplateView):
@@ -20,14 +20,4 @@ class MovieBaseView(View):
 
 
 class MovieListView(MovieBaseView, ListView):
-    pass
-
-
-class DistributorBaseView(View):
-    model = Distributor
-    fields = '__all__'
-    success_url = reverse_lazy('movies:all-distributors')
-
-
-class DistributorListView(DistributorBaseView, ListView):
     pass

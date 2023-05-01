@@ -4,16 +4,12 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
 
-class YearValidator:
-    def __init__(self, min_year=None, max_year=None):
-        self.min_year = min_year
-        self.max_year = max_year
+def validate_year(value):
+    min_year = 1900
+    max_year = 9999
+    if value.year < min_year or value.year > max_year:
+        raise ValidationError(f"Year must be between {min_year} and {max_year}")
 
-    def __call__(self, value):
-        if self.min_year is not None and value.year < self.min_year:
-            raise ValidationError(f"Year must be greater than or equal to {self.min_year}")
-        if self.max_year is not None and value.year > self.max_year:
-            raise ValidationError(f"Year must be less than or equal to {self.max_year}")
         
 
 class Movie(models.Model):
@@ -89,7 +85,7 @@ class Movie(models.Model):
         WICKED_VISION_MEDIA = "Wic", _("Wicked-Vision Media")
 
     title = models.TextField()
-    release_year = models.DateField(validators=[YearValidator(min_year=1850, max_year=2024)])
+    release_year = models.DateField(validators=[validate_year])
     title_in_order = models.TextField() # Title of the movie in the collection (e.g. may have a prefix)
     medium = models.CharField(max_length=1, choices=Medium.choices, default=Medium.BLURAY)
     distributor = models.CharField(max_length=3, choices=Distributor.choices)

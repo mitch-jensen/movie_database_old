@@ -11,6 +11,8 @@ __pycache__/
 db.sqlite3
 media
 
+*.code-workspace
+
 .venv
 .env
 

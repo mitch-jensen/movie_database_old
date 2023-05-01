@@ -1,58 +1,28 @@
 from typing import List, Self
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 
-class PhysicalMedia(models.Model):
+class YearValidator:
+    def __init__(self, min_year=None, max_year=None):
+        self.min_year = min_year
+        self.max_year = max_year
+
+    def __call__(self, value):
+        if self.min_year is not None and value.year < self.min_year:
+            raise ValidationError(f"Year must be greater than or equal to {self.min_year}")
+        if self.max_year is not None and value.year > self.max_year:
+            raise ValidationError(f"Year must be less than or equal to {self.max_year}")
+        
+
+class Movie(models.Model):
     class Medium(models.TextChoices):
         DVD = 'D', _('DVD')
         BLURAY = 'B', _('Blu-ray')
         BLURAY4K = '4', _('4K Blu-ray')
 
-    title = models.TextField()
-    medium = models.CharField(
-        max_length=1, choices=Medium.choices, default=Medium.BLURAY)
-    _distributor = models.ForeignKey(
-        'Distributor', db_column='distributor', null=True, on_delete=models.CASCADE)
-    collection = models.ForeignKey(
-        'Collection', null=True, on_delete=models.CASCADE)
-    # Whether the media would fit in a standard bookshelf standing up
-    standard_size = models.BooleanField(default=True)
-    use_collection_name_as_prefix = models.BooleanField(default=False)
-
-    @property
-    def distributor(self):
-        """If the media is part of a collection, get the distributor through the collection model to minimise data duplication.
-
-        Returns:
-            Distributor: the distributor object that belongs to the media.
-        """
-        if self.collection:
-            return self.collection.distributor
-        else:
-            return self.distributor
-
-    @distributor.setter
-    def distributor(self, value):
-        self._distributor = value
-
-    @classmethod
-    def collection_order(cls) -> List[Self]:
-        qs = cls.objects.all()
-        return sorted(qs, key=str)
-
-    def __str__(self):
-        if self.collection and self.use_collection_name_as_prefix:
-            return f'{self.collection.title}: {self.title}'
-        else:
-            return self.title
-
-    class Meta:
-        db_table = 'physical_media'
-
-
-class Distributor(models.Model):
-    class Studio(models.TextChoices):
+    class Distributor(models.TextChoices):
         ONE_OH_ONE_ONE = "101", _("101 Films")
         TWENTIETH_CENTURY_FOX = "20t", _("20th Century Fox")
         EIGHTY_EIGHT_FILMS = "88F", _("88 Films")
@@ -118,49 +88,16 @@ class Distributor(models.Model):
         WARNER_BROS = "War", _("Warner Bros.")
         WICKED_VISION_MEDIA = "Wic", _("Wicked-Vision Media")
 
-    name = models.CharField(max_length=3, choices=Studio.choices, unique=True)
-
-    def __str__(self):
-        return self.get_name_display()
-
-    class Meta:
-        db_table = 'distributor'
-
-
-class Collection(models.Model):
     title = models.TextField()
-    distributor = models.ForeignKey(Distributor, on_delete=models.CASCADE)
+    release_year = models.DateField(validators=[YearValidator(min_year=1850, max_year=2024)])
+    title_in_order = models.TextField() # Title of the movie in the collection (e.g. may have a prefix)
+    medium = models.CharField(max_length=1, choices=Medium.choices, default=Medium.BLURAY)
+    distributor = models.CharField(max_length=3, choices=Distributor.choices)
+    fits_on_shelf = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.title
-
-    class Meta:
-        db_table = 'collection'
-        ordering = ['distributor', 'title']
-        unique_together = ['title', 'distributor']
-
-
-class Movie(models.Model):
-    title = models.TextField()
-    release_date = models.DateField()
-    director = models.ManyToManyField('Director')
-    watched = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'{self.title} ({self.release_date.year})'
+        return f'{self.title} ({self.release_year.year})'
 
     class Meta:
         db_table = 'movie'
-        ordering = ['title']
-
-
-class Director(models.Model):
-    first_name = models.CharField(max_length=128)
-    last_name = models.CharField(max_length=128)
-
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
-
-    class Meta:
-        db_table = 'director'
-        ordering = ['last_name']
+        ordering = ['title_in_order']

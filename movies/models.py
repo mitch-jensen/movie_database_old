@@ -85,7 +85,7 @@ class Movie(models.Model):
 
     title = models.TextField()
     release_year = models.DateField(validators=[validate_year])
-    title_in_order = models.TextField() # Title of the movie in the collection (e.g. may have a prefix)
+    title_prefix = models.TextField(default='')
     medium = models.CharField(max_length=1, choices=Medium.choices, default=Medium.BLURAY)
     distributor = models.CharField(max_length=3, choices=Distributor.choices)
     fits_on_shelf = models.BooleanField(default=True)
@@ -95,7 +95,7 @@ class Movie(models.Model):
 
     @classmethod
     def collection(cls) -> List[str]:
-        return sorted(cls.objects.all(), key=lambda movie: str(movie).strip().lower().removeprefix('the').removeprefix('a').removeprefix('an'))
+        return sorted(cls.objects.all(), key=lambda movie: movie.title_prefix + str(movie).strip().lower().removeprefix('the').removeprefix('a').removeprefix('an'))
 
 
     def __str__(self):
@@ -103,7 +103,7 @@ class Movie(models.Model):
 
     class Meta:
         db_table = 'movie'
-        ordering = ['title_in_order']
+        ordering = ['title']
 
 
 

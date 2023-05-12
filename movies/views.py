@@ -1,7 +1,10 @@
+from django.forms.models import BaseModelForm
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, UpdateView, CreateView, DetailView
 from django.views import View
+from movies.forms import MovieCreateForm
 from movies.models import Movie
 
 
@@ -13,11 +16,14 @@ class AboutPageView(TemplateView):
     template_name = "pages/about.html"
 
 
-class MovieBaseView(View):
+class MovieListView(ListView):
     model = Movie
-    fields = '__all__'
-    success_url = reverse_lazy('movies:all-movies')
+    context_object_name = 'movies'
 
 
-class MovieListView(MovieBaseView, ListView):
-    pass
+class MovieCreateView(CreateView):
+    model = Movie
+    template_name = 'movies/movie_add.html'
+    form_class = MovieCreateForm
+    success_url = '/movies/add'
+

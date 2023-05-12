@@ -10,7 +10,6 @@ def validate_year(value):
     if value.year < min_year or value.year > max_year:
         raise ValidationError(f"Year must be between {min_year} and {max_year}")
 
-        
 
 class Movie(models.Model):
     class Medium(models.TextChoices):
@@ -90,6 +89,14 @@ class Movie(models.Model):
     medium = models.CharField(max_length=1, choices=Medium.choices, default=Medium.BLURAY)
     distributor = models.CharField(max_length=3, choices=Distributor.choices)
     fits_on_shelf = models.BooleanField(default=True)
+    upc = models.IntegerField(null=True)
+    ean = models.IntegerField(null=True)
+
+
+    @classmethod
+    def collection(cls) -> List[str]:
+        return sorted(cls.objects.all(), key=lambda movie: str(movie).strip().lower().removeprefix('the').removeprefix('a').removeprefix('an'))
+
 
     def __str__(self):
         return f'{self.title} ({self.release_year.year})'
@@ -97,3 +104,6 @@ class Movie(models.Model):
     class Meta:
         db_table = 'movie'
         ordering = ['title_in_order']
+
+
+

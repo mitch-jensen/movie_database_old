@@ -2,13 +2,22 @@ from typing import List, Self
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+from datetime import datetime
 
 
 def validate_year(value):
     min_year = 1900
     max_year = 9999
     if value.year < min_year or value.year > max_year:
-        raise ValidationError(f"Year must be between {min_year} and {max_year}")
+        raise ValidationError(
+            f"Year must be between {min_year} and {max_year}")
+
+
+def movie_year_factory(year):
+    """
+    Returns a datetime object with the specified year, week 1, and day 1. Used for the year column in the movie class (we generally don't care about day and month of release).
+    """
+    return datetime(year=year, month=1, day=1)
 
 
 class Movie(models.Model):
@@ -84,26 +93,22 @@ class Movie(models.Model):
         WICKED_VISION_MEDIA = "Wic", _("Wicked-Vision Media")
 
     title = models.TextField()
-    release_year = models.DateField(validators=[validate_year])
+    year = models.DateField(validators=[validate_year])
     title_prefix = models.TextField(default='')
-    medium = models.CharField(max_length=1, choices=Medium.choices, default=Medium.BLURAY)
+    medium = models.CharField(
+        max_length=1, choices=Medium.choices, default=Medium.BLURAY)
     distributor = models.CharField(max_length=3, choices=Distributor.choices)
     fits_on_shelf = models.BooleanField(default=True)
     upc = models.IntegerField(null=True)
     ean = models.IntegerField(null=True)
 
-
     @classmethod
     def collection(cls) -> List[str]:
         return sorted(cls.objects.all(), key=lambda movie: movie.title_prefix + str(movie).strip().lower().removeprefix('the').removeprefix('a').removeprefix('an'))
 
-
     def __str__(self):
-        return f'{self.title} ({self.release_year.year})'
+        return f'{self.title} ({self.year.year})'
 
     class Meta:
         db_table = 'movie'
         ordering = ['title']
-
-
-

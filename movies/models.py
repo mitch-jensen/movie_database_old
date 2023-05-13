@@ -15,6 +15,7 @@ def validate_year(value):
 
 def movie_year_factory(year):
     """
+<<<<<<< HEAD
     Returns a datetime object with the specified year, week 1, and day 1. Used for the year column in the movie class (we generally don't care about day and month of release).
     """
     return datetime(year=year, month=1, day=1)
@@ -32,6 +33,11 @@ class MultiMovieSet(models.Model):
     class Meta:
         db_table = 'multi_movie_set'
         ordering = ['title']
+=======
+    Returns a datetime object with the specified year, week 1, and day 1.
+    """
+    return datetime(year=year, month=1, day=1)
+>>>>>>> aa4c5f6e4c15478424af4d73d04c535ee1f8b059
 
 
 class Movie(models.Model):
@@ -122,6 +128,7 @@ class Movie(models.Model):
     ean = models.IntegerField(null=True)
     prefix = models.CharField(max_length=3, choices=Prefix.choices, null=True)
 
+<<<<<<< HEAD
     def save(self, *args, **kwargs):
         if not self.prefix and self.title.lower().startswith(('the', 'a', 'an')):
             # Split 'the', 'a' and 'an' from the start of the title for ordering
@@ -140,15 +147,21 @@ class Movie(models.Model):
         self.prefix = prefix
         self.title = ' '.join(title_words)
 
+=======
+>>>>>>> aa4c5f6e4c15478424af4d73d04c535ee1f8b059
     @classmethod
     def collection(cls) -> List[str]:
         return sorted(cls.objects.all(), key=lambda movie: movie.title_prefix + str(movie).strip().lower().removeprefix('the').removeprefix('a').removeprefix('an'))
 
     def __str__(self):
+<<<<<<< HEAD
         prefix = ''
         if self.prefix:
             prefix = self.prefix + ' '
         return f'{prefix}{self.title} ({self.year.year})'
+=======
+        return f'{self.title} ({self.year.year})'
+>>>>>>> aa4c5f6e4c15478424af4d73d04c535ee1f8b059
 
     class Meta:
         db_table = 'movie'

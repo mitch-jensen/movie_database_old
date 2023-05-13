@@ -8,12 +8,18 @@ class MovieCreateUpdateForm(forms.ModelForm):
     year = forms.IntegerField()
     multi_movie_sets = forms.ModelMultipleChoiceField(
         queryset=MultiMovieSet.objects.all(),
-        widget=forms.CheckboxSelectMultiple
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    media = forms.ChoiceField(
+        choices=Movie.Medium.choices,
+        widget=forms.RadioSelect,
+        initial=Movie.Medium.BLURAY
     )
 
     class Meta:
         model = Movie
-        fields = ['title', 'year', 'multi_movie_sets']
+        fields = ['title', 'year', 'media', 'multi_movie_sets']
 
     def clean_year(self):
         year = self.cleaned_data['year']

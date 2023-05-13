@@ -1,3 +1,5 @@
+from typing import Any, Optional, Type
+from django.db.models.query import QuerySet
 from django.forms.models import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -20,7 +22,6 @@ class MovieListView(ListView):
     model = Movie
     context_object_name = 'movies'
 
-
 class MovieCreateView(CreateView):
     model = Movie
     template_name = 'movies/movie_add.html'
@@ -40,3 +41,8 @@ class MultiMovieSetCreateView(CreateView):
     fields = ['title', 'movies']
     template_name = 'movies/multi_movie_set_add.html'
     success_url = '/movies/add/multi_movie_set'
+
+    def get_form(self, form_class: Type[BaseModelForm] | None = None) -> BaseModelForm:
+        form = super().get_form(form_class)
+        form.fields['movies'].required = False
+        return form

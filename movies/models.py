@@ -20,6 +20,20 @@ def movie_year_factory(year):
     return datetime(year=year, month=1, day=1)
 
 
+class MultiMovieSet(models.Model):
+    title = models.TextField()
+    movies = models.ManyToManyField('Movie', related_name='movies')
+
+    def __str__(self):
+        movies = self.movies.all()
+        movie_titles = [str(movie) for movie in movies]
+        return f'''{self.title} <{', '.join(movie_titles)}>'''
+
+    class Meta:
+        db_table = 'multi_movie_set'
+        ordering = ['title']
+
+
 class Movie(models.Model):
     class Medium(models.TextChoices):
         DVD = 'D', _('DVD')
@@ -92,6 +106,11 @@ class Movie(models.Model):
         WARNER_BROS = "War", _("Warner Bros.")
         WICKED_VISION_MEDIA = "Wic", _("Wicked-Vision Media")
 
+    class Prefix(models.TextChoices):
+        THE = "The", _("The")
+        A = "A", _("A")
+        AN = "An", _("An")
+
     title = models.TextField()
     year = models.DateField(validators=[validate_year])
     title_prefix = models.TextField(default='')
@@ -101,13 +120,35 @@ class Movie(models.Model):
     fits_on_shelf = models.BooleanField(default=True)
     upc = models.IntegerField(null=True)
     ean = models.IntegerField(null=True)
+    prefix = models.CharField(max_length=3, choices=Prefix.choices, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.prefix and self.title.lower().startswith(('the', 'a', 'an')):
+            # Split 'the', 'a' and 'an' from the start of the title for ordering
+            self.process_title()
+
+        super().save(*args, **kwargs)
+
+    def process_title(self):
+        # Remove 'the', 'a', or 'an' from the start of the title
+        prefix = ''
+        title_words = self.title.split()
+        if len(title_words) > 0 and title_words[0].lower() in ['the', 'a', 'an']:
+            prefix = title_words.pop(0)
+
+        # Update 'prefix' and 'title' fields
+        self.prefix = prefix
+        self.title = ' '.join(title_words)
 
     @classmethod
     def collection(cls) -> List[str]:
         return sorted(cls.objects.all(), key=lambda movie: movie.title_prefix + str(movie).strip().lower().removeprefix('the').removeprefix('a').removeprefix('an'))
 
     def __str__(self):
-        return f'{self.title} ({self.year.year})'
+        prefix = ''
+        if self.prefix:
+            prefix = self.prefix + ' '
+        return f'{prefix}{self.title} ({self.year.year})'
 
     class Meta:
         db_table = 'movie'

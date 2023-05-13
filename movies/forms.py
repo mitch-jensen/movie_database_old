@@ -1,15 +1,19 @@
 from django import forms
 
-from .models import Movie, movie_year_factory
+from .models import Movie, MultiMovieSet, movie_year_factory
 
 
-class MovieCreateForm(forms.ModelForm):
+class MovieCreateUpdateForm(forms.ModelForm):
     title = forms.CharField()
     year = forms.IntegerField()
+    multi_movie_sets = forms.ModelMultipleChoiceField(
+        queryset=MultiMovieSet.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )
 
     class Meta:
         model = Movie
-        fields = ['title', 'year']
+        fields = ['title', 'year', 'multi_movie_sets']
 
     def clean_year(self):
         year = self.cleaned_data['year']
